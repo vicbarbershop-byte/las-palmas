@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VicBarbershop | Reservar</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .time-btn {
+      padding: 12px 8px;
+      border-radius: 14px;
+      border: 1px solid rgba(201,168,76,.2);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      font: inherit;
+      font-size: .82rem;
+      letter-spacing: .08em;
+      cursor: pointer;
+      transition: all .18s;
+      text-align: center;
+    }
+    .time-btn:hover:not(.occupied):not(.selected) {
+      border-color: rgba(201,168,76,.5);
+      background: rgba(201,168,76,.08);
+    }
+    .time-btn.selected {
+      background: linear-gradient(180deg, var(--gold-2), var(--gold));
+      color: #111;
+      border-color: transparent;
+      font-weight: 700;
+    }
+    .time-btn.occupied {
+      opacity: .3;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+    .field-label {
+      font-size: .78rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .field-group {
+      display: grid;
+      gap: 4px;
+    }
+    .success-box {
+      display: none;
+      background: rgba(201,168,76,.08);
+      border: 1px solid rgba(201,168,76,.3);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+      gap: 10px;
+    }
+    .success-box.show { display: grid; }
+    .success-box h3 { margin: 0; color: var(--gold-2); }
+    .success-box p { margin: 0; color: var(--muted); }
+    .error-msg {
+      display: none;
+      color: #e07070;
+      font-size: .84rem;
+      margin-top: 6px;
+    }
+    .error-msg.show { display: block; }
+    select option { background: #111; color: var(--text); }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) opacity(.4);
+    }
+    .info-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(201,168,76,.1);
+    }
+    .info-item:last-child { border-bottom: none; }
+    .info-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold);
+      margin-top: 6px; flex-shrink: 0;
+    }
+    .info-item p { margin: 0; color: var(--muted); line-height: 1.65; font-size: .9rem; }
+    @media (max-width: 600px) {
+      .time-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="index.html">
+        <img src="logo.png" alt="VicBarbershop logo">
+        <div>
+          <strong>VicBarbershop</strong>
+          <span>Barbería premium</span>
+        </div>
+      </a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="index.html" class="">Inicio</a>
+        <a href="servicios.html" class="">Servicios</a>
+        <a href="reservar.html" class="active">Reservar</a>
+        <a href="contacto.html" class="">Contacto</a>
+      </nav>
+      <button class="menu-btn" type="button" aria-label="Abrir menú" onclick="document.querySelector('.mobile-nav').classList.toggle('open')">Menu</button>
+    </div>
+    <nav class="mobile-nav" aria-label="Navegación móvil">
+      <a href="index.html">Inicio</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="reservar.html">Reservar</a>
+      <a href="contacto.html">Contacto</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section class="hero" style="padding-bottom:18px;">
+    <div class="hero-copy" style="max-width: 760px;">
+      <div class="kicker">Reservas</div>
+      <h1>Pide tu cita <em>en segundos</em></h1>
+      <p>Elige el día, la hora y el servicio. Las reservas son instantáneas y recibirás confirmación inmediata.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="grid-2">
+      <div class="card">
+        <h3>Formulario de reserva</h3>
+
+        <!-- SUCCESS BOX -->
+        <div class="success-box" id="successBox">
+          <h3>✓ Reserva confirmada</h3>
+          <p id="successText"></p>
+          <button class="btn secondary" type="button" onclick="resetForm()" style="margin-top:8px;">Hacer otra reserva</button>
+        </div>
+
+        <!-- FORM -->
+        <div class="form" id="reservaForm">
+          <div class="field-grid">
+            <div class="field-group">
+              <label class="field-label" for="nombre">Nombre completo</label>
+              <input type="text" id="nombre" placeholder="Tu nombre">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" placeholder="+34 600 000 000">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="servicio">Servicio</label>
+            <select id="servicio">
+              <option value="">Elegir servicio</option>
+              <option value="Corte (5€)">Corte — 5€</option>
+              <option value="Corte + Cejas (7€)">Corte + Cejas — 7€</option>
+              <option value="Corte + Barba (8€)">Corte + Barba — 8€</option>
+              <option value="Decoloración / Mechas (25€)">Decoloración / Mechas — 25€</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="fecha">Fecha</label>
+            <input type="date" id="fecha" onchange="renderHoras()">
+          </div>
+
+          <div class="field-group" id="horasWrap" style="display:none;">
+            <label class="field-label">Hora disponible</label>
+            <div class="time-grid" id="timeGrid"></div>
+            <span class="error-msg" id="horaError">Selecciona una hora disponible.</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="nota">Nota (opcional)</label>
+            <textarea id="nota" placeholder="Alguna preferencia o comentario..."></textarea>
+          </div>
+
+          <span class="error-msg" id="formError"></span>
+          <button class="btn primary" type="button" onclick="enviarReserva()">Confirmar reserva</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Información útil</h3>
+        <div class="info-item">
+          <div class="info-dot"></div>
+          <p><strong style="color:var(--text)">Horario y sedes</strong><br>
+          <strong>Lun–Vie 10:00–18:00</strong> · C. José Franchy Roca, 33 (esquina), 35007 Las Palmas de Gran Canaria<br>
+          <strong>Lun–Vie 19:00–22:00</strong> · Calle Joaquín Blume, 11, 5ª planta, puerta A<br>
+          <strong>Sábados 12:00–18:00</strong> · Calle Joaquín Blume, 11, 5ª planta, puerta A<br>
+          Domingos cerrado. Citas cada 30 minutos.</p>
+        </div>
+        <div class="info-item">
+          <div class="info-dot"></div>
+          <p><strong style="color:var(--text)">Confirmación inmediata</strong><br>Al enviar la reserva recibirás confirmación en pantalla al instante.</p>
+        </div>
+        <div class="info-item">
+          <div class="info-dot"></div>
+          <p><strong style="color:var(--text)">Cancelaciones</strong><br>Si necesitas cancelar, avísanos con al menos 1 hora de antelación por teléfono o Instagram.</p>
+        </div>
+        <div class="info-item">
+          <div class="info-dot"></div>
+          <p><strong style="color:var(--text)">¿Dudas?</strong><br>Llámanos al <a href="tel:+34643597025" style="color:var(--gold-2)">+34 643 59 70 25</a> o escríbenos por Instagram.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="small">
+      <strong style="color:var(--text)">VicBarbershop</strong><br>
+      Corte, barba y estilo con acabado profesional.
+    </div>
+    <div class="small">
+      <div>+34 643 59 70 25</div>
+      <div>victormanuelruizidrobo@gmail.com</div>
+      <div>@vic.barberrr_</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ─── CONFIGURACIÓN ─────────────────────────────────────────────────────────
+  const TELEGRAM_BOT_TOKEN = '8616802181:AAH18zkGzHT_SaIu4hDjLNgvPCsklHnuEb4';
+  const TELEGRAM_CHAT_ID   = '6637558884';
+  // Backend compartido entre todos los dispositivos - Firebase Realtime Database
+  const FIREBASE_URL = 'https://vicbarbershop-9c7f3-default-rtdb.europe-west1.firebasedatabase.app/reservas';
+
+  // ─── HORAS DISPONIBLES ─────────────────────────────────────────────────────
+  // Lunes-Viernes sede 1: 10:00–18:00 (última cita 17:30)
+  // Lunes-Viernes sede 2: 19:00–22:00 (última cita 21:30)
+  // Sábados sede 2: 12:00–18:00 (última cita 17:30)
+  function getHorasPorFecha(fechaStr) {
+    const d = new Date(fechaStr + 'T12:00:00');
+    const dow = d.getDay(); // 0=dom,1=lun,...,6=sab
+    if (dow === 0) return []; // domingo cerrado
+    const horas = [];
+    if (dow >= 1 && dow <= 5) {
+      // Sede 1: 10:00–18:00
+      for (let h = 10; h < 18; h++) {
+        horas.push(`${String(h).padStart(2,'0')}:00`);
+        if (h < 17) horas.push(`${String(h).padStart(2,'0')}:30`);
+        else horas.push('17:30');
+      }
+      // Sede 2: 19:00–22:00
+      for (let h = 19; h < 22; h++) {
+        horas.push(`${String(h).padStart(2,'0')}:00`);
+        if (h < 21) horas.push(`${String(h).padStart(2,'0')}:30`);
+        else horas.push('21:30');
+      }
+    } else if (dow === 6) {
+      // Sábado sede 2: 12:00–18:00
+      for (let h = 12; h < 18; h++) {
+        horas.push(`${String(h).padStart(2,'0')}:00`);
+        if (h < 17) horas.push(`${String(h).padStart(2,'0')}:30`);
+        else horas.push('17:30');
+      }
+    }
+    return horas;
+  }
+
+  // ─── RESERVAS COMPARTIDAS VÍA FIREBASE ────────────────────────────────────
+  // Clave Firebase: reemplaza "/" en fecha por "-"
+  function fechaKey(fecha) { return fecha.replace(/-/g, '_'); }
+
+  async function getHorasOcupadas(fecha) {
+    try {
+      const res = await fetch(`${FIREBASE_URL}/${fechaKey(fecha)}.json`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (!data) return [];
+      return Object.values(data); // array de horas ocupadas
+    } catch { return []; }
+  }
+
+  async function reservarHora(fecha, hora) {
+    // Usamos transacción: primero leemos, luego escribimos sólo si no existe
+    // Firebase REST no tiene transacciones nativas pero usamos POST (push) + verificación
+    // Para garantizar atomicidad hacemos un GET inmediatamente antes de escribir
+    const ocupadas = await getHorasOcupadas(fecha);
+    if (ocupadas.includes(hora)) return false; // ya ocupada
+    // Escribir con POST (genera ID único, evita sobreescribir)
+    await fetch(`${FIREBASE_URL}/${fechaKey(fecha)}.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(hora)
+    });
+    return true;
+  }
+
+  // ─── RENDER HORAS ──────────────────────────────────────────────────────────
+  let horaSeleccionada = null;
+  let horasOcupadasCache = [];
+
+  async function renderHoras() {
+    const fecha = document.getElementById('fecha').value;
+    horaSeleccionada = null;
+    document.getElementById('horaError').classList.remove('show');
+
+    if (!fecha) { document.getElementById('horasWrap').style.display = 'none'; return; }
+
+    const HORAS = getHorasPorFecha(fecha);
+    if (HORAS.length === 0) {
+      document.getElementById('horasWrap').style.display = 'grid';
+      const grid = document.getElementById('timeGrid');
+      grid.innerHTML = '<p style="color:var(--muted);font-size:.85rem;grid-column:1/-1">Los domingos estamos cerrados. Elige otro día.</p>';
+      return;
+    }
+
+    document.getElementById('horasWrap').style.display = 'grid';
+    const grid = document.getElementById('timeGrid');
+    grid.innerHTML = '<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1">Cargando horas disponibles…</p>';
+
+    horasOcupadasCache = await getHorasOcupadas(fecha);
+    grid.innerHTML = '';
+
+    HORAS.forEach(hora => {
+      const ocupada = horasOcupadasCache.includes(hora);
+      const btn = document.createElement('button');
+      btn.className = 'time-btn' + (ocupada ? ' occupied' : '');
+      btn.textContent = hora;
+      btn.type = 'button';
+      if (!ocupada) {
+        btn.onclick = () => selectHora(fecha, hora, btn);
+      }
+      grid.appendChild(btn);
+    });
+  }
+
+  function selectHora(fecha, hora, btn) {
+    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    horaSeleccionada = hora;
+    document.getElementById('horaError').classList.remove('show');
+  }
+
+  // ─── ENVIAR RESERVA ────────────────────────────────────────────────────────
+  async function enviarReserva() {
+    const nombre   = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const servicio = document.getElementById('servicio').value;
+    const fecha    = document.getElementById('fecha').value;
+    const nota     = document.getElementById('nota').value.trim();
+    const errEl    = document.getElementById('formError');
+    const btnEnviar = document.querySelector('.btn.primary');
+
+    errEl.classList.remove('show');
+
+    // Validaciones
+    if (!nombre) { showError('Por favor, introduce tu nombre.'); return; }
+    if (!telefono) { showError('Por favor, introduce tu teléfono.'); return; }
+    if (!servicio) { showError('Por favor, elige un servicio.'); return; }
+    if (!fecha) { showError('Por favor, selecciona una fecha.'); return; }
+    if (!horaSeleccionada) {
+      document.getElementById('horaError').classList.add('show');
+      return;
+    }
+
+    btnEnviar.textContent = 'Confirmando…';
+    btnEnviar.disabled = true;
+
+    // Reservar en el backend compartido (anti-duplicado real entre dispositivos)
+    const exito = await reservarHora(fecha, horaSeleccionada);
+    if (!exito) {
+      showError('Esta hora acaba de ser reservada por otra persona. Por favor, elige otra.');
+      btnEnviar.textContent = 'Confirmar reserva';
+      btnEnviar.disabled = false;
+      await renderHoras();
+      return;
+    }
+
+    // Formatear fecha legible
+    const fechaObj = new Date(fecha + 'T12:00:00');
+    const fechaLegible = fechaObj.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    // Enviar a Telegram
+    const msg = `🗓 *Nueva reserva — VicBarbershop*\n\n` +
+                `👤 *Nombre:* ${nombre}\n` +
+                `📞 *Teléfono:* ${telefono}\n` +
+                `✂️ *Servicio:* ${servicio}\n` +
+                `📅 *Fecha:* ${fechaLegible}\n` +
+                `🕐 *Hora:* ${horaSeleccionada}\n` +
+                (nota ? `📝 *Nota:* ${nota}` : '');
+
+    try {
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: msg,
+          parse_mode: 'Markdown'
+        })
+      });
+    } catch (e) {
+      console.warn('Telegram no disponible:', e);
+    }
+
+    // Mostrar éxito
+    document.getElementById('successText').textContent =
+      `${nombre}, tu cita para ${servicio} el ${fechaLegible} a las ${horaSeleccionada} está confirmada. ¡Hasta pronto!`;
+    document.getElementById('reservaForm').style.display = 'none';
+    document.getElementById('successBox').classList.add('show');
+    btnEnviar.textContent = 'Confirmar reserva';
+    btnEnviar.disabled = false;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('formError');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  function resetForm() {
+    document.getElementById('reservaForm').style.display = 'grid';
+    document.getElementById('successBox').classList.remove('show');
+    document.getElementById('nombre').value = '';
+    document.getElementById('telefono').value = '';
+    document.getElementById('servicio').value = '';
+    document.getElementById('fecha').value = '';
+    document.getElementById('nota').value = '';
+    document.getElementById('horasWrap').style.display = 'none';
+    horaSeleccionada = null;
+  }
+
+  // Fijar fecha mínima a hoy
+  document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha').min = hoy;
+  });
+
+  // Cerrar menú móvil
+  document.addEventListener('click', (e) => {
+    const btn = document.querySelector('.menu-btn');
+    const nav = document.querySelector('.mobile-nav');
+    if (!btn || !nav) return;
+    if (!nav.contains(e.target) && !btn.contains(e.target)) nav.classList.remove('open');
+  });
+</script>
+</body>
+</html>

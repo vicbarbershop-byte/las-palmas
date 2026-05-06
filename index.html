@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VicBarbershop | Inicio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="index.html">
+        <img src="logo.png" alt="VicBarbershop logo">
+        <div>
+          <strong>VicBarbershop</strong>
+          <span>Barbería premium</span>
+        </div>
+      </a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="index.html" class="active">Inicio</a>
+        <a href="servicios.html" class="">Servicios</a>
+        <a href="reservar.html" class="">Reservar</a>
+        <a href="contacto.html" class="">Contacto</a>
+      </nav>
+      <button class="menu-btn" type="button" aria-label="Abrir menú" onclick="document.querySelector('.mobile-nav').classList.toggle('open')">Menu</button>
+    </div>
+    <nav class="mobile-nav" aria-label="Navegación móvil">
+      <a href="index.html">Inicio</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="reservar.html">Reservar</a>
+      <a href="contacto.html">Contacto</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="kicker">Barbería premium</div>
+        <h1>Tu estilo, <em>bien hecho</em></h1>
+        <p>Ofrecemos cortes de alta calidad, atención personalizada y un ambiente cuidado para que cada cliente disfrute de una experiencia premium desde el primer momento.</p>
+        <div class="actions">
+          <a class="btn primary" href="reservar.html">Reservar cita</a>
+          <a class="btn secondary" href="servicios.html">Ver servicios</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="logo-wrap">
+          <img src="logo.png" alt="Logo VicBarbershop grande sin fondo">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <div class="badge">Lo más pedido</div>
+        <h2>Servicios destacados</h2>
+      </div>
+      <p>Elige el servicio que más se adapte a ti. Calidad y precisión en cada corte, con un trato cercano y profesional.</p>
+    </div>
+    <div class="grid-3">
+      <article class="card">
+        <h3>Corte</h3>
+        <p>Corte clásico o moderno adaptado a tu estilo personal.</p>
+        <div class="price">5€</div>
+      </article>
+      <article class="card">
+        <h3>Corte + Cejas</h3>
+        <p>Corte completo con perfilado y diseño de cejas.</p>
+        <div class="price">7€</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <div class="badge">Explora la web</div>
+        <h2>Todo lo que necesitas</h2>
+      </div>
+      <p>Consulta todos los servicios disponibles o reserva tu cita directamente desde la web, fácil y rápido.</p>
+    </div>
+    <div class="grid-2">
+      <article class="card">
+        <h3>Servicios</h3>
+        <p>Lista completa con precios y explicación breve de cada opción disponible en la barbería.</p>
+        <div class="hr"></div>
+        <a class="btn secondary" href="servicios.html">Ver todos los servicios</a>
+      </article>
+      <article class="card">
+        <h3>Reserva tu cita</h3>
+        <p>Elige el día y la hora que mejor te venga. Las reservas se confirman al instante sin necesidad de llamar.</p>
+        <div class="hr"></div>
+        <a class="btn secondary" href="reservar.html">Reservar ahora</a>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="small">
+      <strong style="color:var(--text)">VicBarbershop</strong><br>
+      Corte, barba y estilo con acabado profesional.
+    </div>
+    <div class="small">
+      <div>+34 643 59 70 25</div>
+      <div>victormanuelruizidrobo@gmail.com</div>
+      <div>@vic.barberrr_</div>
+    </div>
+  </div>
+</footer>
+<script>
+  document.addEventListener('click', (e) => {
+    const btn = document.querySelector('.menu-btn');
+    const nav = document.querySelector('.mobile-nav');
+    if (!btn || !nav) return;
+    if (!nav.contains(e.target) && !btn.contains(e.target)) nav.classList.remove('open');
+  });
+</script>
+</body>
+</html>
